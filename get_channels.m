@@ -15,6 +15,7 @@ channels(:, :, 1:3) = rgbConvert(img, 'luv');
 img_gray = rgb2gray(img);
 
 sigmas = [0 1.5 5];
+angles = [0 pi/4 pi/2 3*pi/4];
 
 for i=1:3
     if sigmas(i) == 0
@@ -22,9 +23,10 @@ for i=1:3
         gauss(3, 3) = 1;
     else
         gauss = fspecial('gaussian', [5 5], sigmas(i));
+        calculate_oriented = 1;
     end
     sobel = fspecial('sobel');
-    % convolve 2 filters to apply them filters at once
+    % convolve 2 filters to apply them at once
     hx = imfilter(gauss, sobel');
     hy = imfilter(gauss, sobel);
     
@@ -32,6 +34,14 @@ for i=1:3
     idx = imfilter(img_gray, hx, 'symmetric'); 
     idy = imfilter(img_gray, hy, 'symmetric'); 
     
-    channels(:, :, i + 3) = hypot(idx, idy);
+    channels(:, :, i + 3) = (idx.^2 + idy.^2).^(1/2);
+    if i < 3
+        start_index = 7+4*(i-1)
+        stop_index = 6+4*i
+        for j = start_index:stop_index
+            angle = angles(j-6-4*(i-1));
+            channels(:,:, j) = abs(idx.*cos(angle) + idy.*sin(angle));
+        end
+    end
 end
 end
