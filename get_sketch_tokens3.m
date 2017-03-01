@@ -20,6 +20,9 @@ num_imgs = 30;
 num_samples = 30000;
 pos_ratio   = 0.5; %The desired percentage of positive samples. 
 %It's not critical that your function find exactly this many samples.
+pos_samples = num_samples * pos_ratio;
+neg_samples = num_samples * (1 - pos_ratio);
+
 
 %14 channels
 %3 color
@@ -27,16 +30,18 @@ pos_ratio   = 0.5; %The desired percentage of positive samples.
 %4 + 4 oriented magnitudes
 
 % Don't bother with sampling / clustering the sketch patches initially.
-%daisy_feature_dims = feature_params.RQ * feature_params.TQ * feature_params.HQ + feature_params.HQ;
-%sketch_features = zeros(num_samples, daisy_feature_dims, 'single');
+daisy_feature_dims = feature_params.RQ * feature_params.TQ * feature_params.HQ + feature_params.HQ;
+sketch_features = zeros(num_samples, daisy_feature_dims, 'single');
 
 %DELETE THIS PLACEHOLDER
-labels = round(rand(num_samples,1))+1;
+labels = ones(num_samples,1);
 img_features = rand(num_samples,40);
 img_features = single(img_features); %needs to be single precision
 
-radius = feature_params.CR;
-
+% feature params 
+features_r = feature_params.CR;
+daisy_r = feature_params.R;
+feature_size = 2 * features_r + 1;
 
 for i = 1:num_imgs
     fprintf(' Sampling patches / annotations from %s\n', train_imgs(i).name);
@@ -50,7 +55,10 @@ for i = 1:num_imgs
     for j = 1:length(annotation_struct.groundTruth)
         cur_gt = cur_gt + annotation_struct.groundTruth{j}.Boundaries; 
     end
-     
+    
+    pos_index = find(cur_gt);
+    neg_index = find(cur_gt == 1);
+    
     imshow(cur_gt);
     waitforbuttonpress
     % Pad the current image and then call 'channels = get_channels(cur_img)'
