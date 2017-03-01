@@ -36,8 +36,8 @@ for i=1:3
     
     channels(:, :, i + 3) = (idx.^2 + idy.^2).^(1/2);
     if i < 3
-        start_index = 7+4*(i-1)
-        stop_index = 6+4*i
+        start_index = 7+4*(i-1);
+        stop_index = 6+4*i;
         for j = start_index:stop_index
             angle = angles(j-6-4*(i-1));
             channels(:,:, j) = abs(idx.*cos(angle) + idy.*sin(angle));
