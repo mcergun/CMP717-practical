@@ -7,7 +7,7 @@ function channels = get_channels(img)
 rows = size(img, 1);
 cols = size(img, 2);
 % pre allocate channels
-channels = zeros(rows, cols, 9); 
+channels = zeros(rows, cols, 14); 
 
 % get LUV channels
 channels(:, :, 1:3) = rgbConvert(img, 'luv');
