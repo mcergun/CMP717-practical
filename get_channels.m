@@ -23,7 +23,6 @@ for i=1:3
         gauss(3, 3) = 1;
     else
         gauss = fspecial('gaussian', [5 5], sigmas(i));
-        calculate_oriented = 1;
     end
     sobel = fspecial('sobel');
     % convolve 2 filters to apply them at once
@@ -34,13 +33,14 @@ for i=1:3
     idx = imfilter(img_gray, hx, 'symmetric'); 
     idy = imfilter(img_gray, hy, 'symmetric'); 
     
-    channels(:, :, i + 3) = (idx.^2 + idy.^2).^(1/2);
+    channels(:, :, i + 3) = hypot(idx, idy);
+    % if sigma = 0, 1.5
     if i < 3
         start_index = 7+4*(i-1);
         stop_index = 6+4*i;
         for j = start_index:stop_index
             angle = angles(j-6-4*(i-1));
-            channels(:,:, j) = abs(idx.*cos(angle) + idy.*sin(angle));
+            channels(:,:, j) = hypot(idx.*cos(angle), idy.*sin(angle));
         end
     end
 end
