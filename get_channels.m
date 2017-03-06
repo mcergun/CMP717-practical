@@ -10,7 +10,7 @@ cols = size(img, 2);
 channels = zeros(rows, cols, 14); 
 
 % get LUV channels
-channels(:, :, 1:3) = rgbConvert(img, 'luv');
+%channels(:, :, 1:3) = rgbConvert(img, 'luv'); %%TODO: UNCOMMENT THIS LINE
 
 img_gray = rgb2gray(img);
 

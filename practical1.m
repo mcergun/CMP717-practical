@@ -98,13 +98,15 @@ end
 % Your code here!
 I = im2double(imread('../data/BSDS500/images/small_test/196027.jpg'));
 channels = get_channels(I);
-
 channelSize = size(channels, 3);
-  for k = 1 : channelSize
-      figure(k); imshow(abs(channels(:,:,k)));
-  end 
+% for k = 1 : channelSize
+%     figure(k); imshow(abs(channels(:,:,k)));
+% end 
 
- 
+feature_params = struct('R', 15, 'RQ', 3, 'TQ', 8, 'HQ', 8, 'SI', 1, 'LI', 1, 'NT', 0, 'CR', 7);
+num_sketch_tokens = 1;
+[img_features, labels] = get_sketch_tokens4(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens);
+%labels(i) = 1 implies background. labels(i) = 2 implies sketch token 1, etc.
 
 %{
 %The patch width should be _odd_ so that there is an unambiguous center
