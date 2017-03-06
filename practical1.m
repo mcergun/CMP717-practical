@@ -97,8 +97,8 @@ end
 %% Sketch tokens
 % Your code here!
 I = im2double(imread('../data/BSDS500/images/small_test/196027.jpg'));
-channels = get_channels(I);
-channelSize = size(channels, 3);
+%channels = get_channels(I);
+%channelSize = size(channels, 3);
 % for k = 1 : channelSize
 %     figure(k); imshow(abs(channels(:,:,k)));
 % end 

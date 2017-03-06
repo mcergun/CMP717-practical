@@ -7,10 +7,19 @@ function channels = get_channels(img)
 rows = size(img, 1);
 cols = size(img, 2);
 % pre allocate channels
-channels = zeros(rows, cols, 14); 
+channels = zeros(rows, cols, 14);
+
 
 % get LUV channels
-%channels(:, :, 1:3) = rgbConvert(img, 'luv'); %%TODO: UNCOMMENT THIS LINE
+
+% normalize input image to [0-1] if cell values bigger than 1 
+if max(img(:)) >= 1
+    norms = sqrt(sum(img.^2,2));
+    norm_img = bsxfun(@rdivide, img, norms);
+    channels(:, :, 1:3) = rgbConvert(norm_img, 'luv'); 
+else
+    channels(:, :, 1:3) = rgbConvert(img, 'luv');
+end 
 
 img_gray = rgb2gray(img);
 
