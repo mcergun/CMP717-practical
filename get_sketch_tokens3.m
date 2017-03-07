@@ -1,6 +1,3 @@
-%%%%%%%% WE ARE SAMPLING 30k for each image, THAT IS NOT THE CORRECT WAY TO
-%%%%%%%% 30k should be total number of samples after each and every image
-%%%%%%%% is sampled
 function [img_features] = ... 
     get_sketch_tokens3(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens)
 
@@ -18,11 +15,14 @@ function [img_features] = ...
 train_imgs = dir( fullfile( train_img_dir, '*.jpg' ));
 % train_gts  = dir( fullfile( train_gt_dir,  '%.mat' )); %don't need to look them up, assume they exist for every image
 % num_imgs = length(train_imgs); % You don't need to sample them all while debugging.
-num_imgs = 10;
+num_imgs = 20;
 
-num_samples = 5000;
+num_samples = 30000;
 pos_ratio   = 0.5; %The desired percentage of positive samples. 
 %It's not critical that your function find exactly this many samples.
+
+num_pos_samples = num_samples * pos_ratio;
+num_neg_samples = num_samples - num_pos_samples;
 
 %14 channels
 %3 color
@@ -45,6 +45,9 @@ img_features = single(zeros(num_samples, feat_sz * feat_sz * 14));
 
 total_imgs = 200;
 shuffled_img_index = randperm(total_imgs, num_imgs);
+
+cur_pos_sample = 0;
+cur_neg_sample = 0;
 
 for i = 1:num_imgs
     img_index = shuffled_img_index(i);
@@ -70,8 +73,8 @@ for i = 1:num_imgs
     channels = get_channels(im2single(padded_img));
     
     % trying to prevent possible index out of bounds for small images
-    pos_samples = min(num_samples * pos_ratio, size(pos_rows, 1));
-    neg_samples = min(num_samples - pos_samples, size(neg_cols, 1));
+    pos_samples = min(num_pos_samples / num_imgs, size(pos_rows, 1));
+    neg_samples = min(num_neg_samples / num_imgs, size(neg_cols, 1));
     fprintf(' Number of positive samples = %d, Number of negative samples = %d\n', ...
         pos_samples, neg_samples);
     
@@ -88,14 +91,16 @@ for i = 1:num_imgs
         row_stop = cur_row + 2 * feat_r;
         col_stop = cur_col + 2 * feat_r;
         
+        cur_pos_sample = cur_pos_sample + 1;
+        
         % extract patch
         cur_patch = channels(cur_row : row_stop, cur_col : col_stop, :);
         % reshape the patch to be of size (feat_size * feat_size * 14, 1)
-        img_features(j, :) = ... 
+        img_features(cur_pos_sample, :) = ... 
             reshape(cur_patch, 1, size(img_features, 2));        
-        sketch_features(j, :) = ...
+        sketch_features(cur_pos_sample, :) = ...
             reshape(get_descriptor(daisy, cur_row, cur_col), 1, daisy_feature_dims);
-        labels(j) = 2;
+        labels(cur_pos_sample) = 2;
     end
     
     for j=1:neg_samples
@@ -106,10 +111,12 @@ for i = 1:num_imgs
         row_stop = cur_row + 2 * feat_r;
         col_stop = cur_col + 2 * feat_r;
         
+        cur_neg_sample = cur_neg_sample + 1;
+        
         % extract patch
         cur_patch = channels(cur_row : row_stop, cur_col : col_stop, :);
         % reshape the patch to be of size (feat_size * feat_size * 14, 1)
-        img_features(j + pos_samples, :) = ... 
+        img_features(cur_neg_sample + num_pos_samples, :) = ... 
             reshape(cur_patch, 1, size(img_features, 2));
     end
     
