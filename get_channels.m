@@ -11,15 +11,7 @@ channels = zeros(rows, cols, 14);
 
 
 % get LUV channels
-
-% normalize input image to [0-1] if cell values bigger than 1 
-if max(img(:)) >= 1
-    norms = sqrt(sum(img.^2,2));
-    norm_img = bsxfun(@rdivide, img, norms);
-    channels(:, :, 1:3) = rgbConvert(norm_img, 'luv'); 
-else
-    channels(:, :, 1:3) = rgbConvert(img, 'luv');
-end 
+channels(:, :, 1:3) = rgbConvert(img, 'luv');
 
 img_gray = rgb2gray(img);
 
