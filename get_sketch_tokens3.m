@@ -73,8 +73,8 @@ for i = 1:num_imgs
     channels = get_channels(im2single(padded_img));
     
     % trying to prevent possible index out of bounds for small images
-    pos_samples = min(num_pos_samples / num_imgs, size(pos_rows, 1));
-    neg_samples = min(num_neg_samples / num_imgs, size(neg_cols, 1));
+    pos_samples = min(ceil(num_pos_samples / num_imgs), size(pos_rows, 1));
+    neg_samples = min(ceil(num_neg_samples / num_imgs), size(neg_cols, 1));
     fprintf(' Number of positive samples = %d, Number of negative samples = %d\n', ...
         pos_samples, neg_samples);
     
