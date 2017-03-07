@@ -1,5 +1,5 @@
 function [img_features] = ... 
-    get_sketch_tokens3(train_img_dir, train_gt_dir, feature_params)
+    get_sketch_tokens3(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens)
 
 % 'img_features' is N x feature dimension. You probably want it to be
 % 'single' precision to save memory. 
@@ -15,9 +15,9 @@ function [img_features] = ...
 train_imgs = dir( fullfile( train_img_dir, '*.jpg' ));
 % train_gts  = dir( fullfile( train_gt_dir,  '%.mat' )); %don't need to look them up, assume they exist for every image
 % num_imgs = length(train_imgs); % You don't need to sample them all while debugging.
-num_imgs = 20;
+num_imgs = 10;
 
-num_samples = 30000;
+num_samples = 5000;
 pos_ratio   = 0.5; %The desired percentage of positive samples. 
 %It's not critical that your function find exactly this many samples.
 
@@ -40,13 +40,17 @@ feat_sz = 2 * feat_r + 1;
 
 img_features = single(zeros(num_samples, feat_sz * feat_sz * 14));
 
+total_imgs = 200;
+shuffled_img_index = randperm(total_imgs, num_imgs);
+
 for i = 1:num_imgs
-    fprintf(' Sampling patches / annotations from %s\n', train_imgs(i).name);
-    [cur_pathstr,cur_name,cur_ext] = fileparts(train_imgs(i).name);
-    cur_img = imread(fullfile(train_img_dir, train_imgs(i).name));
+    img_index = shuffled_img_index(i);
+    fprintf(' Sampling patches / annotations from %s\n', train_imgs(img_index).name);
+    [cur_pathstr,cur_name,cur_ext] = fileparts(train_imgs(img_index).name);
+    cur_img = imread(fullfile(train_img_dir, train_imgs(img_index).name));
     cur_gt  = zeros(size(cur_img,1), size(cur_img,2));
         
-    dsy = compute_daisy(cur_img);
+    daisy = compute_daisy(cur_img);
     
     annotation_struct  = load(fullfile(train_gt_dir, [cur_name '.mat']));
     for j = 1:length(annotation_struct.groundTruth)
@@ -78,13 +82,17 @@ for i = 1:num_imgs
         cur_col = pos_cols(pos_index_shuffled(j));
         
         % get patche s limits
-        rowstop = cur_row + 2 * feat_r;
-        colstop = cur_col + 2 * feat_r;
+        row_stop = cur_row + 2 * feat_r;
+        col_stop = cur_col + 2 * feat_r;
         
         % extract patch
-        cur_patch = channels(cur_row : rowstop, cur_col : colstop, :);
+        cur_patch = channels(cur_row : row_stop, cur_col : col_stop, :);
+        % reshape the patch to be of size (feat_size * feat_size * 14, 1)
         img_features(j, :) = ... 
-            reshape(cur_patch, 1, size(img_features, 2));
+            reshape(cur_patch, 1, size(img_features, 2));        
+        sketch_features(j, :) = ...
+            reshape(get_descriptor(daisy, cur_row, cur_col), 1, daisy_feature_dims);
+        labels(j) = 2;
     end
     
     for j=1:neg_samples
@@ -92,11 +100,12 @@ for i = 1:num_imgs
         cur_col = neg_cols(neg_index_shuffled(j));
         
         % get patche s limits
-        rowstop = cur_row + 2 * feat_r;
-        colstop = cur_col + 2 * feat_r;
+        row_stop = cur_row + 2 * feat_r;
+        col_stop = cur_col + 2 * feat_r;
         
         % extract patch
-        cur_patch = channels(cur_row : rowstop, cur_col : colstop, :);
+        cur_patch = channels(cur_row : row_stop, cur_col : col_stop, :);
+        % reshape the patch to be of size (feat_size * feat_size * 14, 1)
         img_features(j + pos_samples, :) = ... 
             reshape(cur_patch, 1, size(img_features, 2));
     end
