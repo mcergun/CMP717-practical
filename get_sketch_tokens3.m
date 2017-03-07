@@ -1,3 +1,6 @@
+%%%%%%%% WE ARE SAMPLING 30k for each image, THAT IS NOT THE CORRECT WAY TO
+%%%%%%%% 30k should be total number of samples after each and every image
+%%%%%%%% is sampled
 function [img_features] = ... 
     get_sketch_tokens3(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens)
 
