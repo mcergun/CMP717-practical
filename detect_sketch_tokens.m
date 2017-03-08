@@ -22,7 +22,7 @@ pb = zeros(height, width);
 num_sketch_tokens = max(forest(1).hs) - 1; %-1 for background class
 
 % Pad the current image and then call 'channels = get_channels(cur_img)'
-img_padded = im2double(imPad(img, feat_r, 'symmetric'));
+img_padded = im2single(imPad(img, feat_r, 'symmetric'));
 channels = get_channels(img_padded);
 
 % Stack all of the image features into one matrix. This will be redundant
@@ -37,11 +37,19 @@ for cur_row = 1:height
         col_stop = cur_col + 2 * feat_r;
         patches(row_offset + cur_col, :) = ...
             reshape(channels(cur_row:row_stop, cur_col:col_stop, :), 1, ...
-            size(patches));
+            size(patches, 2));
     end
 end
 patches = single(patches);
 
 % Call 'forestApply', use the resulting probabilities to build the output
 % 'pb'
-[categories, probs] = forestApply(patches,forest);
+[hs, ps] = forestApply(patches,forest);
+fprintf('forest applied %f %f\n\n', hs, ps)
+
+pb = 1 - ps(:, 1);
+pb = reshape(pb, width, height)';
+
+pb = imfilter(pb, fspecial('gaussian', 9, 1.5));
+
+pb = stToEdges(pb);

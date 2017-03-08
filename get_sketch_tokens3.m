@@ -1,4 +1,4 @@
-function [img_features] = ... 
+function [img_features, labels] = ... 
     get_sketch_tokens3(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens)
 
 % 'img_features' is N x feature dimension. You probably want it to be
@@ -69,8 +69,8 @@ for i = 1:num_imgs
     cur_gt_sz = size(cur_gt);
     
     % Pad the current image and then call 'channels = get_channels(cur_img)'
-    padded_img = im2double(imPad(cur_img, feat_r, 'symmetric'));
-    channels = get_channels(im2single(padded_img));
+    padded_img = im2single(imPad(cur_img, feat_r, 'symmetric'));
+    channels = get_channels(padded_img);
     
     % trying to prevent possible index out of bounds for small images
     pos_samples = min(ceil(num_pos_samples / num_imgs), size(pos_rows, 1));
