@@ -16,10 +16,13 @@ pb  = zeros(height, width);
 num_sketch_tokens = max(forest(1).hs) - 1; %-1 for background class
 
 % Pad the current image and then call 'channels = get_channels(cur_img)'
-
+padded_img = im2double(imPad(img, feature_params.CR, 'symmetric'));
+channels = get_channels(im2single(padded_img));
 % Stack all of the image features into one matrix. This will be redundant
 % (a single pixel will appear in many patches) but it will be faster than
 % calling 'forestApply' for every single pixel.
 
+[hs, ps] = forestApply(img, forest, 20, 5, 0)
+fprintf('forest applied %f %f\n\n', hs, ps)
 % Call 'forestApply', use the resulting probabilities to build the output
 % 'pb'

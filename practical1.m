@@ -129,7 +129,7 @@ end
 % Example of training a random forest classifier. See 'help forestTrain'
 fprintf('Training random forest\n')
 pTrain={'M',20};
-tic, forest=forestTrain( img_features, labels, pTrain); toc
+tic, forest=forestTrain( img_features, labels, pTrain); toc; % trains 20 trees
 
 %% Validation on new random feature set
 validation = 0;
@@ -146,13 +146,12 @@ end
 % very low with a random forest. You can comment out this entire section
 % after you have things working reasonably.
 for i = 1:num_sketch_tokens
-    fprintf('Initial classifier performance on train data:\n')
     [categories, probabilities] = forestApply(img_features,forest);
-    
     confidences = probabilities(:,i) - 0.5; % -0.5 to make it zero centered
     label_vector = (labels == i)*2 - 1;
-    [tp_rate, fp_rate, tn_rate, fn_rate] =  report_accuracy( confidences, label_vector );
+    
 
+    [tp_rate, fp_rate, tn_rate, fn_rate] =  report_accuracy( confidences, label_vector );
     % Visualize how well separated the positive and negative examples are at
     % training time. Sometimes this can idenfity odd biases in your training
     % data. 
@@ -171,12 +170,12 @@ end
 % Your code here!
 for f=1:length(test_imgs)
     fprintf('Detecting Sketch Tokens #%d out of %d\n',f,length(test_imgs));
-    cur_img = single(imread(fullfile(test_img_dir,test_imgs(f).name)));
+    cur_img = im2single(imread(fullfile(test_img_dir,test_imgs(f).name)));
         
     [pb] = detect_sketch_tokens(cur_img, forest, feature_params);
     
     %call stToEdges here or inside 'detect_sketch_tokens'
-
+    % EdgeMap = stToEdges(pb, false, false);
 %     figure(201)
 %     imagesc(pb)
 %     figure(1);imshow(pb);pause(0.01);
