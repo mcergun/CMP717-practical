@@ -44,12 +44,11 @@ patches = single(patches);
 
 % Call 'forestApply', use the resulting probabilities to build the output
 % 'pb'
-[hs, ps] = forestApply(patches,forest);
-fprintf('forest applied %f %f\n\n', hs, ps)
+[hs, ps] = forestApply(patches,forest, 20, 5, 0);
+edge_probabilities = sum(ps(:,2:end),2);
+pb = reshape(edge_probabilities, width, height)';
 
-pb = 1 - ps(:, 1);
-pb = reshape(pb, width, height)';
+gaussian = fspecial('Gaussian', [5 5], 1.5);
+pb = imfilter(pb, gaussian);
 
-pb = imfilter(pb, fspecial('gaussian', 9, 1.5));
-
-pb = stToEdges(pb);
+pb = stToEdges(pb,1,1);
