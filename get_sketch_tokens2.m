@@ -15,9 +15,9 @@ function [img_features, labels] = ...
 train_imgs = dir( fullfile( train_img_dir, '*.jpg' ));
 % train_gts  = dir( fullfile( train_gt_dir,  '%.mat' )); %don't need to look them up, assume they exist for every image
 % num_imgs = length(train_imgs); % You don't need to sample them all while debugging.
-num_imgs = 10;
+num_imgs = 20;
 
-num_samples = 100;
+num_samples = 50000;
 pos_ratio   = 0.5; %The desired percentage of positive samples. 
 n_pos = round(num_samples*pos_ratio);
 n_neg = num_samples - n_pos;
@@ -86,7 +86,7 @@ for i = 1:num_imgs
         pos_count = pos_count+1;
         img_pos_count = img_pos_count+1;
         sketch_features(pos_count,:) = ...
-            reshape(get_descriptor(dzy, r, c), 1, daisy_feature_dims)
+            reshape(get_descriptor(dzy, r, c), 1, daisy_feature_dims);
         img_features(pos_count,:) = ...
             reshape(channels(r:r+2*CR,c:c+2*CR,:),1,D);
     end

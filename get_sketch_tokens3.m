@@ -141,9 +141,12 @@ end
 
 % Only cluster the Sketch Patches which have center pixel boundaries.
 
-[~, assignments] = vl_kmeans(sketch_features', num_sketch_tokens);
+% c -> centers, a -> assignments
+[c, a] = vl_kmeans(sketch_features', num_sketch_tokens);
 
 img_features = single(img_features);
-labels = [assignments'+1; ones(num_neg_samples, 1)];
+
+% [2 num_sketch_tokens] for actual tokens and 1 for background
+labels = [a'+1; ones(num_neg_samples, 1)];
 
 

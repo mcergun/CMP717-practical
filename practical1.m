@@ -54,61 +54,43 @@ if (~exist(canny_img_dir,'dir'));    mkdir(canny_img_dir); end
 if (~exist(sketch_tokens_dir,'dir')); mkdir(sketch_tokens_dir); end
 
 
-%% Baseline: detect boundaries using thresholded Sobel responses
-% You do not need to modify this. You can safely comment this block out
-% after you've run it once, because the intermediate results will stay in
-% 'sobel_img_dir'
-
-% sobel_pb_stack=cell(1,length(test_imgs));
-
-%{
-thresh=.04:.03:.3;
-for f=1:length(test_imgs)
-    fprintf('computing Sobel baseline #%d out of %d\n',f,length(test_imgs));
-        cur_img=rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
-    pb=sobel_pb(cur_img,thresh);
-    figure(1);imshow(pb);pause(0.01);
-    [path, name, ext]=fileparts(test_imgs(f).name);
-    imwrite(pb,[sobel_img_dir, name,'.png'], 'png'); %sobel thresholded pb
-%     sobel_pb_stack{f}=pb;
-end
-%}
+% %% Baseline: detect boundaries using thresholded Sobel responses
+% % You do not need to modify this. You can safely comment this block out
+% % after you've run it once, because the intermediate results will stay in
+% % 'sobel_img_dir'
+% 
+% % sobel_pb_stack=cell(1,length(test_imgs));
+% thresh=.04:.03:.3;
+% for f=1:length(test_imgs)
+%     fprintf('computing Sobel baseline #%d out of %d\n',f,length(test_imgs));
+%         cur_img=rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
+%     pb=sobel_pb(cur_img,thresh);
+%     figure(1);imshow(pb);pause(0.01);
+%     [path, name, ext]=fileparts(test_imgs(f).name);
+%     imwrite(pb,[sobel_img_dir, name,'.png'], 'png'); %sobel thresholded pb
+% %     sobel_pb_stack{f}=pb;
+% end
 
 
-%% Baseline: detect boundaries using Canny
-% You do not need to modify this. You can safely comment this block out
-% after you've run it once, because the intermediate results will stay in
-% 'canny_img_dir'
-
-
-%{
-thresh=.05:.1:0.95;
-sigma=1:1:4;
-for f=1:length(test_imgs)
-    fprintf('computing Canny baseline #%d out of %d\n',f,length(test_imgs));
-    cur_img  =rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
-    pb=canny_pb(cur_img, thresh, sigma);
-    figure(1);imshow(pb);pause(0.01);
-    [path, name, ext]=fileparts(test_imgs(f).name);
-    imwrite(pb,[canny_img_dir,name,'.png'],'png'); %sobel thresholded pb
-end
-%}
+% %% Baseline: detect boundaries using Canny
+% % You do not need to modify this. You can safely comment this block out
+% % after you've run it once, because the intermediate results will stay in
+% % 'canny_img_dir'
+% 
+% thresh=.05:.1:0.95;
+% sigma=1:1:4;
+% for f=1:length(test_imgs)
+%     fprintf('computing Canny baseline #%d out of %d\n',f,length(test_imgs));
+%     cur_img  =rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
+%     pb=canny_pb(cur_img, thresh, sigma);
+%     figure(1);imshow(pb);pause(0.01);
+%     [path, name, ext]=fileparts(test_imgs(f).name);
+%     imwrite(pb,[canny_img_dir,name,'.png'],'png'); %sobel thresholded pb
+% end
 
 %% Sketch tokens
 % Your code here!
-I = im2double(imread('../data/BSDS500/images/small_test/196027.jpg'));
-%channels = get_channels(I);
-%channelSize = size(channels, 3);
-% for k = 1 : channelSize
-%     figure(k); imshow(abs(channels(:,:,k)));
-% end 
 
-feature_params = struct('R', 15, 'RQ', 3, 'TQ', 8, 'HQ', 8, 'SI', 1, 'LI', 1, 'NT', 0, 'CR', 7);
-num_sketch_tokens = 1;
-[img_features, labels] = get_sketch_tokens4(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens);
-%labels(i) = 1 implies background. labels(i) = 2 implies sketch token 1, etc.
-
-%{
 %The patch width should be _odd_ so that there is an unambiguous center
 %pixel. The feature width is 35 in the Sketch Token paper, but you probably
 %don't have enough memory to use such large features.
@@ -132,19 +114,12 @@ feature_params = struct('R', 15, 'RQ', 3, 'TQ', 8, 'HQ', 8, 'SI', 1, 'LI', 1, 'N
 %      2 = Full Normalization
 %      3 = Sift like normalization    
 
-num_sketch_tokens = 1;
+num_sketch_tokens = 16;
 
-%% a. Get Sketch Tokens and the training examples. From the training
+% a. Get Sketch Tokens and the training examples. From the training
 %    directory, load pairs of images and annotations.
-   
-  
-   
-feature_params = struct('R', 15, 'RQ', 3, 'TQ', 8, 'HQ', 8, 'SI', 1, 'LI', 1, 'NT', 0, 'CR', 7);
-num_sketch_tokens = 1;
-[img_features, labels] = get_sketch_tokens( train_img_dir, train_gt_dir, feature_params, num_sketch_tokens);
+[img_features, labels] = get_sketch_tokens3( train_img_dir, train_gt_dir, feature_params, num_sketch_tokens);
 %labels(i) = 1 implies background. labels(i) = 2 implies sketch token 1, etc.
-
- 
 
 %% b. Train classifiers Sketch Token(s).
 if( num_sketch_tokens ~= length(unique(labels)) - 1)  % -1 because of the background class
@@ -161,7 +136,7 @@ validation = 0;
 if(validation)
     %you can use val_features and val_labels below if you want to measure
     %your classifier's accuracy without doing full boundary detection.
-    [val_features, val_labels] = get_sketch_tokens( val_img_dir, val_gt_dir, feature_params, num_sketch_tokens);
+    [val_features, val_labels] = get_sketch_tokens3( val_img_dir, val_gt_dir, feature_params, num_sketch_tokens);
 end
 
 %% Examine learned classifiers
@@ -196,7 +171,7 @@ end
 % Your code here!
 for f=1:length(test_imgs)
     fprintf('Detecting Sketch Tokens #%d out of %d\n',f,length(test_imgs));
-    cur_img = single(imread(fullfile(test_img_dir,test_imgs(f).name)));
+    cur_img = imread(fullfile(test_img_dir,test_imgs(f).name));
         
     [pb] = detect_sketch_tokens(cur_img, forest, feature_params);
     
@@ -212,7 +187,6 @@ end
 
 %% evaluate the results from Sobel
 %run only when the Sobel images change. Otherwise comment out to save time.
-%{
 fprintf('Evaluating Sobel edges against human ground truth\n')
 
 if (~exist(sobel_eval_dir,'dir')); mkdir(sobel_eval_dir); end
@@ -220,11 +194,10 @@ nthresh = 5;
 tic;
 boundaryBench(test_img_dir, test_gt_dir, sobel_img_dir, sobel_eval_dir, nthresh);
 toc;
-%}
+
 
 %% evaluate the results from Canny 
 %run only when the Canny images change. Otherwise comment out to save time.
-%{
 fprintf('Evaluating Canny edges against human ground truth\n')
 
 if (~exist(canny_eval_dir,'dir')); mkdir(canny_eval_dir); end
@@ -232,7 +205,7 @@ nthresh = 5;
 tic;
 boundaryBench(test_img_dir, test_gt_dir, canny_img_dir, canny_eval_dir, nthresh);
 toc;
-%}
+
 %% evaluate the results from Sketch Tokens
 fprintf('Evaluating Sketch tokens edges against human ground truth\n')
 
@@ -267,10 +240,3 @@ print(h,'-dpng','visualizations/PR_curve.png');
 % gPB global                                             ODS .73, OIS .76, AP .73
 % Sketch Tokens  ODS .73, OIS .75, AP .78
 % Humans, ODS .80, OIS .80
-
-
-
-
-
-
-%}
