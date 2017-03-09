@@ -31,10 +31,7 @@ num_neg_samples = num_samples - num_pos_samples;
 
 % Don't bother with sampling / clustering the sketch patches initially.
 daisy_feature_dims = feature_params.RQ * feature_params.TQ * feature_params.HQ + feature_params.HQ;
-sketch_features = zeros(num_samples, daisy_feature_dims, 'single');
-
-%DELETE THIS PLACEHOLDER
-labels = ones(num_samples,1);
+sketch_features = zeros(num_pos_samples, daisy_feature_dims, 'single');
 
 % feature params 
 feat_r = feature_params.CR;
@@ -97,10 +94,12 @@ for i = 1:num_imgs
         cur_patch = channels(cur_row : row_stop, cur_col : col_stop, :);
         % reshape the patch to be of size (feat_size * feat_size * 14, 1)
         img_features(cur_pos_sample, :) = ... 
-            reshape(cur_patch, 1, size(img_features, 2));        
+            reshape(cur_patch, 1, size(img_features, 2));   
+        % only edge pixels are taken into account for sketch_features
         sketch_features(cur_pos_sample, :) = ...
             reshape(get_descriptor(daisy, cur_row, cur_col), 1, daisy_feature_dims);
-        labels(cur_pos_sample) = 2;
+        % can remove, vl_kmeans will calculate this for us
+%         labels(cur_pos_sample) = 2;
     end
     
     for j=1:neg_samples
@@ -142,6 +141,9 @@ end
 
 % Only cluster the Sketch Patches which have center pixel boundaries.
 
+[~, assignments] = vl_kmeans(sketch_features', num_sketch_tokens);
 
+img_features = single(img_features);
+labels = [assignments'+1; ones(num_neg_samples, 1)];
 
 
