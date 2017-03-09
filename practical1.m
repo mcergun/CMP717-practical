@@ -114,7 +114,7 @@ feature_params = struct('R', 15, 'RQ', 3, 'TQ', 8, 'HQ', 8, 'SI', 1, 'LI', 1, 'N
 %      2 = Full Normalization
 %      3 = Sift like normalization    
 
-num_sketch_tokens = 1;
+num_sketch_tokens = 16;
 
 % a. Get Sketch Tokens and the training examples. From the training
 %    directory, load pairs of images and annotations.
@@ -171,7 +171,7 @@ end
 % Your code here!
 for f=1:length(test_imgs)
     fprintf('Detecting Sketch Tokens #%d out of %d\n',f,length(test_imgs));
-    cur_img = single(imread(fullfile(test_img_dir,test_imgs(f).name)));
+    cur_img = imread(fullfile(test_img_dir,test_imgs(f).name));
         
     [pb] = detect_sketch_tokens(cur_img, forest, feature_params);
     
