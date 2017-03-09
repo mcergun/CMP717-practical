@@ -1,5 +1,5 @@
 function [img_features, labels] = ... 
-    get_sketch_tokens3(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens)
+    get_sketch_tokens(train_img_dir, train_gt_dir, feature_params, num_sketch_tokens)
 
 % 'img_features' is N x feature dimension. You probably want it to be
 % 'single' precision to save memory. 
