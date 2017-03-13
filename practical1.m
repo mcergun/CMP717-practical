@@ -27,8 +27,8 @@ addpath(genpath('./bench/')); %BSDS evaluation code
 addpath(genpath('./piotr_toolbox/')) %Piotr Dollar's Matlab Toolbox, for random forest classifier and a few other functions.
 
 train_img_dir = '../data/BSDS500/images/train/'; %not used by Sobel or Canny baselines, but used by Sketch Tokens
-test_img_dir  = '../data/BSDS500/images/small_test/'; %contains only 10 test images
-% test_img_dir  = '../data/BSDS500/images/medium_test/'; %contains only 25 test images. They seem to be slightly easier than the test set as a whole.
+% test_img_dir  = '../data/BSDS500/images/small_test/'; %contains only 10 test images
+test_img_dir  = '../data/BSDS500/images/medium_test/'; %contains only 25 test images. They seem to be slightly easier than the test set as a whole.
 % test_img_dir = '../data/BSDS500/images/test/'; %full 200 image test set. Probably too slow for debugging use.
 % val_img_dir = '../data/BSDS500/images/val'; %Optional to use these for validation. Don't train on them, though!
 
@@ -114,7 +114,7 @@ feature_params = struct('R', 15, 'RQ', 3, 'TQ', 8, 'HQ', 8, 'SI', 1, 'LI', 1, 'N
 %      2 = Full Normalization
 %      3 = Sift like normalization    
 
-num_sketch_tokens = 16;
+num_sketch_tokens = 20;
 
 % a. Get Sketch Tokens and the training examples. From the training
 %    directory, load pairs of images and annotations.
