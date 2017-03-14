@@ -152,11 +152,14 @@ table td img {
 <p> 	In this practical, we use this approach to detect boundaries. We first, use train image to create a random forest. We have human drawn edge detected images. We use these image for training part. Our algorithm learns what kind of edge can be found by which sketch token. Then it create a forest of sketch tokens.
 Secondly, we detect sketch tokens. We extract these sketch tokens from images. And finally, we apply them to images and get the boundaries.
  </p>
-<!-- <ol>
-<li>list element 1.</li>
-<li>list element 2.</li>
-<li>etc.</li>
-</ol> -->
+<p> 	The parameters we have used are: </p>
+<ol>
+<li>20 training trees</li>
+<li>20 sketch tokens</li>
+<li>20 training images</li>
+<li>30k training samples</li>
+<li>15x15 patch size</li>
+</ol>
 
 <div style="clear:both">
 <h3>get_channels.m</h3>
@@ -166,7 +169,7 @@ directional derivatives. Then those derivates are used to calculate gradient mag
 
 <h3>get_sketch_tokens.m</h3>
 
-<p> 	To get patches from images, we first shuffled the image directory list with 'randperm' to get a better training data. We, then used 20 images with 30k samples to get sketch tokens. We then found grount truth edge values 
+<p> 	To get patches from images, we first shuffled the image directory list with 'randperm' to get a better training data. We then found grount truth edge values 
 and shuffled their indexes to get rid of abundant patches.</p>
 <p> 	We have implemented feature description detection in this function. Each time a positive sample is captured, 'get_descriptor' is called with the computed daisy structure.</p>
 <p> 	Finally labels list is filled with vl_kmeans output after clustering different sketch tokens together. Each kmeans assignment is incremented by 1 as each sketch token should be larger than 1. Rest of the list is filled 
