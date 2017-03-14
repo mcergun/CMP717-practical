@@ -26,8 +26,9 @@ addpath('daisy'); %modified daisy descriptor, http://cvlab.epfl.ch/software/dais
 addpath(genpath('./bench/')); %BSDS evaluation code
 addpath(genpath('./piotr_toolbox/')) %Piotr Dollar's Matlab Toolbox, for random forest classifier and a few other functions.
 
-train_img_dir = '../data/BSDS500/images/train/'; %not used by Sobel or Canny baselines, but used by Sketch Tokens% test_img_dir  = '../data/BSDS500/images/small_test/'; %contains only 10 test images
-test_img_dir  = '../data/BSDS500/images/medium_test/'; %contains only 25 test images. They seem to be slightly easier than the test set as a whole.
+train_img_dir = '../data/BSDS500/images/train/'; %not used by Sobel or Canny baselines, but used by Sketch Tokens
+test_img_dir  = '../data/BSDS500/images/small_test/'; %contains only 10 test images
+% test_img_dir  = '../data/BSDS500/images/medium_test/'; %contains only 25 test images. They seem to be slightly easier than the test set as a whole.
 % test_img_dir = '../data/BSDS500/images/test/'; %full 200 image test set. Probably too slow for debugging use.
 % val_img_dir = '../data/BSDS500/images/val'; %Optional to use these for validation. Don't train on them, though!
 
@@ -53,39 +54,39 @@ if (~exist(canny_img_dir,'dir'));    mkdir(canny_img_dir); end
 if (~exist(sketch_tokens_dir,'dir')); mkdir(sketch_tokens_dir); end
 
 
-%% Baseline: detect boundaries using thresholded Sobel responses
-% You do not need to modify this. You can safely comment this block out
-% after you've run it once, because the intermediate results will stay in
-% 'sobel_img_dir'
+% %% Baseline: detect boundaries using thresholded Sobel responses
+% % You do not need to modify this. You can safely comment this block out
+% % after you've run it once, because the intermediate results will stay in
+% % 'sobel_img_dir'
+% 
+% % sobel_pb_stack=cell(1,length(test_imgs));
+% thresh=.04:.03:.3;
+% for f=1:length(test_imgs)
+%     fprintf('computing Sobel baseline #%d out of %d\n',f,length(test_imgs));
+%         cur_img=rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
+%     pb=sobel_pb(cur_img,thresh);
+%     figure(1);imshow(pb);pause(0.01);
+%     [path, name, ext]=fileparts(test_imgs(f).name);
+%     imwrite(pb,[sobel_img_dir, name,'.png'], 'png'); %sobel thresholded pb
+% %     sobel_pb_stack{f}=pb;
+% end
 
-% sobel_pb_stack=cell(1,length(test_imgs));
-thresh=.04:.03:.3;
-for f=1:length(test_imgs)
-    fprintf('computing Sobel baseline #%d out of %d\n',f,length(test_imgs));
-        cur_img=rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
-    pb=sobel_pb(cur_img,thresh);
-    figure(1);imshow(pb);pause(0.01);
-    [path, name, ext]=fileparts(test_imgs(f).name);
-    imwrite(pb,[sobel_img_dir, name,'.png'], 'png'); %sobel thresholded pb
-%     sobel_pb_stack{f}=pb;
-end
 
-
-%% Baseline: detect boundaries using Canny
-% You do not need to modify this. You can safely comment this block out
-% after you've run it once, because the intermediate results will stay in
-% 'canny_img_dir'
-
-thresh=.05:.1:0.95;
-sigma=1:1:4;
-for f=1:length(test_imgs)
-    fprintf('computing Canny baseline #%d out of %d\n',f,length(test_imgs));
-    cur_img  =rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
-    pb=canny_pb(cur_img, thresh, sigma);
-    figure(1);imshow(pb);pause(0.01);
-    [path, name, ext]=fileparts(test_imgs(f).name);
-    imwrite(pb,[canny_img_dir,name,'.png'],'png'); %sobel thresholded pb
-end
+% %% Baseline: detect boundaries using Canny
+% % You do not need to modify this. You can safely comment this block out
+% % after you've run it once, because the intermediate results will stay in
+% % 'canny_img_dir'
+% 
+% thresh=.05:.1:0.95;
+% sigma=1:1:4;
+% for f=1:length(test_imgs)
+%     fprintf('computing Canny baseline #%d out of %d\n',f,length(test_imgs));
+%     cur_img  =rgb2gray(im2double(imread(fullfile(test_img_dir,test_imgs(f).name))));
+%     pb=canny_pb(cur_img, thresh, sigma);
+%     figure(1);imshow(pb);pause(0.01);
+%     [path, name, ext]=fileparts(test_imgs(f).name);
+%     imwrite(pb,[canny_img_dir,name,'.png'],'png'); %sobel thresholded pb
+% end
 
 %% Sketch tokens
 % Your code here!
@@ -118,6 +119,10 @@ num_sketch_tokens = 20;
 % a. Get Sketch Tokens and the training examples. From the training
 %    directory, load pairs of images and annotations.
 [img_features, labels] = get_sketch_tokens( train_img_dir, train_gt_dir, feature_params, num_sketch_tokens);
+
+save('img_features.mat', 'img_features');
+save('labels.mat', 'labels');
+
 %labels(i) = 1 implies background. labels(i) = 2 implies sketch token 1, etc.
 
 %% b. Train classifiers Sketch Token(s).
@@ -129,6 +134,9 @@ end
 fprintf('Training random forest\n')
 pTrain={'M',20};
 tic, forest=forestTrain( img_features, labels, pTrain); toc
+
+save('forest.mat', 'forest');
+
 
 %% Validation on new random feature set
 validation = 0;
@@ -151,7 +159,7 @@ for i = 1:num_sketch_tokens
     confidences = probabilities(:,i) - 0.5; % -0.5 to make it zero centered
     label_vector = (labels == i)*2 - 1;
     [tp_rate, fp_rate, tn_rate, fn_rate] =  report_accuracy( confidences, label_vector );
-    
+
     % Visualize how well separated the positive and negative examples are at
     % training time. Sometimes this can idenfity odd biases in your training
     % data. 
@@ -175,7 +183,7 @@ for f=1:length(test_imgs)
     [pb] = detect_sketch_tokens(cur_img, forest, feature_params);
     
     %call stToEdges here or inside 'detect_sketch_tokens'
-    
+
 %     figure(201)
 %     imagesc(pb)
 %     figure(1);imshow(pb);pause(0.01);

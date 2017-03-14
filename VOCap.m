@@ -8,4 +8,3 @@ for i=numel(mpre)-1:-1:1
 end
 i=find(mrec(2:end)~=mrec(1:end-1))+1;
 ap=sum((mrec(i)-mrec(i-1)).*mpre(i));
-
