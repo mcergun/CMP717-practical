@@ -4,6 +4,7 @@
 *.html
 *.png
 *.asv
+*.mat
 piotr_toolbox
 daisy
 bench
