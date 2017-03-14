@@ -136,7 +136,7 @@ table td img {
 <body>
 <div id="header" >
 <div id="headersub">
-<h1>Mert Can Ergun <span style="color: #DE3737">(your cs id)</span></h1>
+<h1>Mert Can Ergun <span style="color: #DE3737">(N16127532)</span></h1>
 <h1>Tugba Dartici<span style="color: #DE3737"> (N16121403)</span></h1>
 </div>
 </div>
@@ -152,37 +152,71 @@ table td img {
 <p> 	In this practical, we use this approach to detect boundaries. We first, use train image to create a random forest. We have human drawn edge detected images. We use these image for training part. Our algorithm learns what kind of edge can be found by which sketch token. Then it create a forest of sketch tokens.
 Secondly, we detect sketch tokens. We extract these sketch tokens from images. And finally, we apply them to images and get the boundaries.
  </p>
-<ol>
+<!-- <ol>
 <li>list element 1.</li>
 <li>list element 2.</li>
 <li>etc.</li>
-</ol>
-
-<p> 	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+</ol> -->
 
 <div style="clear:both">
-<h3>Example heading</h3>
+<h3>get_channels.m</h3>
 
-<p> 	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p> 	14 channels including: 3 LUV color channels, 3 overall gradient magnitude channels and finally 8 oriented gradient magnitudes have been calculated according to the Sketch Tokens paper. We have used a sobel filter to get
+directional derivatives. Then those derivates are used to calculate gradient magnitude and oriented gradient magnitudes. Each channel is finally filtered by a post-gaussian filter as advised in the original paper.</p>
 
+<h3>get_sketch_tokens.m</h3>
+
+<p> 	To get patches from images, we first shuffled the image directory list with 'randperm' to get a better training data. We, then used 20 images with 30k samples to get sketch tokens. We then found grount truth edge values 
+and shuffled their indexes to get rid of abundant patches.</p>
+<p> 	We have implemented feature description detection in this function. Each time a positive sample is captured, 'get_descriptor' is called with the computed daisy structure.</p>
+<p> 	Finally labels list is filled with vl_kmeans output after clustering different sketch tokens together. Each kmeans assignment is incremented by 1 as each sketch token should be larger than 1. Rest of the list is filled 
+with 1s for background regions.</p>
  
- 
+<h3>Training a random forest classifier</h3>
+
+<p> 	20 trees are used for forest training. Our precision rates are above 0.95. We got negative rates close to zero at this part. Our true negative rates are close to 1, while true positive rates are fairly low 
+and sometimes close to zero.</p>
+
+<h3>detect_sketch_tokens.m</h3>
+
+<p> 	We have used the computing efficient method in this part. With each pixel channels are captured, flattened and stored in a big array of [width*height, CR*CR*14] size. Then 'forestApply' is called once to calculate
+edge probabilities. </p>
+<p> 	After probabilities are calculated, we first tried 1-ps to calculate edge probabilities but its performance was bad. So we have used another method to sum all probabilities for different trees then reshape pb to
+be of image size. The method is taken from <a href=https://github.com/chtran/computer_vision/blob/master/proj5/code/detect_sketch_tokens.m>here@chtran's repository</a>. Finally, probabilities is filtered by a gaussian filter to
+remove some of the unwanted artifacts.</p>
+
 <h3>Results in a table</h3>
-<h5>left to right: original image, human drawn edges, our result</h5>
+<h5>Left to right: Original image, Canny Baseline Results, Our implementation Results</h5>
 <table border=1>
 <tr>
 <td>
-<img src="images/test_29030.jpg" width="30%"/>
-<img src="placeholder.jpg"  width="30%"/>
-<img src="images/st_29030.png" width="30%"/> 
+<img src="data/real/384022.jpg" width="30%"/>
+<img src="data/canny_baseline/384022.png"  width="30%"/>
+<img src="data/sketch_tokens/384022.png" width="30%"/>
 </td>
 </tr>
 
 <tr>
 <td>
-<img src="images/test_128035.jpg" width="30%"/>
-<img src="placeholder.jpg"  width="30%"/>
-<img src="images/st_128035.png" width="30%"/> 
+<img src="data/real/128035.jpg" width="30%"/>
+<img src="data/canny_baseline/128035.png"  width="30%"/>
+<img src="data/sketch_tokens/128035.png" width="30%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="data/real/112056.jpg" width="30%"/>
+<img src="data/canny_baseline/112056.png"  width="30%"/>
+<img src="data/sketch_tokens/112056.png" width="30%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="data/real/334025.jpg" width="30%"/>
+<img src="data/canny_baseline/334025.png"  width="30%"/>
+<img src="data/sketch_tokens/334025.png" width="30%"/>
 </td>
 </tr>
 
@@ -197,7 +231,8 @@ F score of 0.61
 </center>
 
 <div style="clear:both" >
-<p> 	We tried to apply sketch token algorithm. Our results detects edges fine but it also detects small components which we do not want. Our goal is to get as close as possible to human drawn images. We find the boundaries but also unwanted parts. As result, we get F score 0.61 </p>
+<p> 	We tried to apply sketch token algorithm. Our results detects edges fine but it also detects small components which we do not want. Our goal is to get as close as possible to human drawn images. We find the boundaries but also unwanted parts. As result, we get F score 0.61 vs 0.57 of Canny Baseline. </p>
+<p> 	The performance is suboptimal against what is achievable with this method. </p>
 </div>
 </body>
 </html>
