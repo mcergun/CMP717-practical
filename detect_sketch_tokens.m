@@ -45,10 +45,9 @@ patches = single(patches);
 % Call 'forestApply', use the resulting probabilities to build the output
 % 'pb'
 [hs, ps] = forestApply(patches,forest, 20, 5, 0);
-edge_probabilities = sum(ps(:,2:end),2);
-pb = reshape(edge_probabilities, width, height)';
 
-gaussian = fspecial('Gaussian', [5 5], 1.5);
-pb = imfilter(pb, gaussian);
+% sum all probabilities together then reshape it as the image
+pb = reshape(sum(ps(:,2:end),2), width, height)';
+pb = imfilter(pb, fspecial('Gaussian', [5 5], 5));
 
 pb = stToEdges(pb,1,1);
