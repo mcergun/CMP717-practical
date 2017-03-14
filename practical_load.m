@@ -188,26 +188,26 @@ for f=1:length(test_imgs)
     imwrite(pb,[sketch_tokens_dir,name,'.png'],'png');
 end
 
-%% evaluate the results from Sobel
-%run only when the Sobel images change. Otherwise comment out to save time.
-fprintf('Evaluating Sobel edges against human ground truth\n')
+% %% evaluate the results from Sobel
+% %run only when the Sobel images change. Otherwise comment out to save time.
+% fprintf('Evaluating Sobel edges against human ground truth\n')
+% 
+% if (~exist(sobel_eval_dir,'dir')); mkdir(sobel_eval_dir); end
+% nthresh = 5;
+% tic;
+% boundaryBench(test_img_dir, test_gt_dir, sobel_img_dir, sobel_eval_dir, nthresh);
+% toc;
 
-if (~exist(sobel_eval_dir,'dir')); mkdir(sobel_eval_dir); end
-nthresh = 5;
-tic;
-boundaryBench(test_img_dir, test_gt_dir, sobel_img_dir, sobel_eval_dir, nthresh);
-toc;
 
-
-%% evaluate the results from Canny 
-%run only when the Canny images change. Otherwise comment out to save time.
-fprintf('Evaluating Canny edges against human ground truth\n')
-
-if (~exist(canny_eval_dir,'dir')); mkdir(canny_eval_dir); end
-nthresh = 5;
-tic;
-boundaryBench(test_img_dir, test_gt_dir, canny_img_dir, canny_eval_dir, nthresh);
-toc;
+% %% evaluate the results from Canny 
+% %run only when the Canny images change. Otherwise comment out to save time.
+% fprintf('Evaluating Canny edges against human ground truth\n')
+% 
+% if (~exist(canny_eval_dir,'dir')); mkdir(canny_eval_dir); end
+% nthresh = 5;
+% tic;
+% boundaryBench(test_img_dir, test_gt_dir, canny_img_dir, canny_eval_dir, nthresh);
+% toc;
 
 %% evaluate the results from Sketch Tokens
 fprintf('Evaluating Sketch tokens edges against human ground truth\n')
